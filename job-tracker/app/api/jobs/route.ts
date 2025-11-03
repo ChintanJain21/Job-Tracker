@@ -22,10 +22,11 @@ export async function POST(request: Request) {
     const body = await request.json();
     const job = new Job(body);
     await job.save();
+    // RETURN the created job as JSON response
+    return NextResponse.json(job);
   } catch (error) {
     console.error('POST /api/jobs error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to create job';
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
-  }
-
+}
