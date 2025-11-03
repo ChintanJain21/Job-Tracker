@@ -115,7 +115,19 @@ export default function Page() {
     setLoading(true);
     fetch('/api/jobs')
       .then(res => res.json())
-      .then(data => setJobs(data))
+      .then(data => {
+        // Ensure data is an array before setting
+        if (Array.isArray(data)) {
+          setJobs(data);
+        } else {
+          console.error('Expected array but got:', data);
+          setJobs([]);
+        }
+      })
+      .catch(error => {
+        console.error('Failed to fetch jobs:', error);
+        setJobs([]);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -161,14 +173,18 @@ export default function Page() {
       // Optional: refetch jobs to sync UI and DB
       fetch('/api/jobs')
         .then(res => res.json())
-        .then(setJobs);
+        .then(data => {
+          if (Array.isArray(data)) setJobs(data);
+        });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       alert('Update failed: ' + errorMessage);
       // Revert optimistic update by refetching
       fetch('/api/jobs')
         .then(res => res.json())
-        .then(setJobs);
+        .then(data => {
+          if (Array.isArray(data)) setJobs(data);
+        });
     }
   }
 }
@@ -386,7 +402,7 @@ async function handleUpdateJob(e: React.FormEvent<HTMLFormElement>) {
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <div className="flex gap-6 overflow-x-auto pb-4">
           {columns.map((col) => {
-            const jobsInCol = jobs.filter((job) => job.status === col);
+            const jobsInCol = (Array.isArray(jobs) ? jobs : []).filter((job) => job.status === col);
             return (
               <KanbanColumn key={col} id={col}>
                 <h2 className="mb-5 font-bold text-xl border-b border-slate-600/50 pb-3 text-white flex items-center justify-between">
