@@ -3,6 +3,9 @@ import mongoose from 'mongoose';
 import connectToDatabase from '@/lib/mongodb';
 import Job from '@/models/Job';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 // Helper used for both PUT and PATCH so client can use either method
 async function handleUpdate(request: Request, params: { id: string }) {
   try {
